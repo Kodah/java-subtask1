@@ -131,6 +131,9 @@
                     <Column editable="true" title="Number" type="java.lang.Object"/>
                   </Table>
                 </Property>
+                <Property name="selectionModel" type="javax.swing.ListSelectionModel" editor="org.netbeans.modules.form.editors2.JTableSelectionModelEditor">
+                  <JTableSelectionModel selectionMode="0"/>
+                </Property>
               </Properties>
             </Component>
           </SubComponents>
