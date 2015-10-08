@@ -116,8 +116,10 @@ public class LibraryGUI extends javax.swing.JFrame {
         model.setRowCount(0);
         selectedBorrowedBook = null;
 
-        for (Book book : aMember.getBooksOnLoan()) {
-            model.addRow(new Object[]{book.getTitle(), book.getAuthor(), book.getISBNNumber(), book.getAccessionNumber()});
+        if (aMember != null) {
+            for (Book book : aMember.getBooksOnLoan()) {
+                model.addRow(new Object[]{book.getTitle(), book.getAuthor(), book.getISBNNumber(), book.getAccessionNumber()});
+            }
         }
     }
 
@@ -200,6 +202,11 @@ public class LibraryGUI extends javax.swing.JFrame {
         });
 
         btn_removeMember.setText("Remove Member");
+        btn_removeMember.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_removeMemberActionPerformed(evt);
+            }
+        });
 
         tbl_members.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -323,6 +330,11 @@ public class LibraryGUI extends javax.swing.JFrame {
         });
 
         btn_removeBookFromLibrary.setText("Remove Book From Library");
+        btn_removeBookFromLibrary.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_removeBookFromLibraryActionPerformed(evt);
+            }
+        });
 
         tbl_library.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -492,14 +504,30 @@ public class LibraryGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_addToLibraryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_addToLibraryActionPerformed
-        // TODO add your handling code here:
+        String title = txt_addBookTitle.getText();
+        String author = txt_addBookAuthor.getText();
+        String iSBN = txt_addBookISBN.getText();
+
+        if (title.length() > 0 && author.length() > 0 && iSBN.length() > 0) {
+            txt_addBookTitle.setText("");
+            txt_addBookAuthor.setText("");
+            txt_addBookISBN.setText("");
+            
+            holdings.addBook(new Book(title, author, iSBN));
+            
+            reloadLibraryTable();
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(null, "Missing information for book", "Warning", JOptionPane.PLAIN_MESSAGE);
+        }
     }//GEN-LAST:event_btn_addToLibraryActionPerformed
 
     private void btn_returnBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_returnBookActionPerformed
 
         if (selectedBorrowedBook == null) {
             JOptionPane.showMessageDialog(null, "No book selected", "Warning", JOptionPane.PLAIN_MESSAGE);
-        } else{
+        } else {
             selectedMember.returnBook(selectedBorrowedBook);
             loadLoanedBooksForMember(selectedMember);
             reloadLibraryTable();
@@ -521,13 +549,38 @@ public class LibraryGUI extends javax.swing.JFrame {
 
     private void btn_addNewMemberActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_addNewMemberActionPerformed
         String name = txt_newMemberName.getText();
-        if (name.length() > 0) 
-        {
+        txt_newMemberName.setText("");
+        if (name.length() > 0) {
             theMembers.add(new Member(name));
         }
         reloadMembersTable();
         loadLoanedBooksForMember(null);
     }//GEN-LAST:event_btn_addNewMemberActionPerformed
+
+    private void btn_removeMemberActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_removeMemberActionPerformed
+        if (selectedMember == null) {
+            JOptionPane.showMessageDialog(null, "Please select a member", "Warning", JOptionPane.PLAIN_MESSAGE);
+        } else if (selectedMember.getBooksOnLoan().length > 0) {
+            JOptionPane.showMessageDialog(null, "You can't delete this user because they have books on loan.", "Warning", JOptionPane.PLAIN_MESSAGE);
+        } else {
+            theMembers.removeMember(selectedMember);
+            selectedMember = null;
+            reloadMembersTable();
+            loadLoanedBooksForMember(null);
+        }
+    }//GEN-LAST:event_btn_removeMemberActionPerformed
+
+    private void btn_removeBookFromLibraryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_removeBookFromLibraryActionPerformed
+        
+        if (selectedLibraryBook == null) {
+            JOptionPane.showMessageDialog(null, "No book selected", "Warning", JOptionPane.PLAIN_MESSAGE);
+        }
+        else {
+            holdings.removeBook(selectedLibraryBook);
+            reloadLibraryTable();
+        }
+            
+    }//GEN-LAST:event_btn_removeBookFromLibraryActionPerformed
 
     /**
      * @param args the command line arguments
