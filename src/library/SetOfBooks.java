@@ -4,26 +4,38 @@
  */
 package library;
 
-import java.awt.List;
 import java.util.ArrayList;
+
 /**
  *
  * @author Kutoma
  */
 public class SetOfBooks extends ArrayList<Book> {
 
+    public SetOfBooks() {
 
-public SetOfBooks(){
+        super();
+    }
 
-    super();
-}
+    public void addBook(Book aBook) {
+        super.add(aBook);
+    }
 
-public void addBook(Book aBook){
-    super.add(aBook);
-}
-
-public void removeBook(Book aBook){
-    super.remove(aBook);
-}
+    public void removeBook(Book aBook) {
+        super.remove(aBook);
+    }
+    
+    ArrayList<Book> availableBooks()
+    {
+        ArrayList<Book> availableBooks = new ArrayList<Book>();
+        for (Book book : this) 
+        {
+            if (book.getBorrower() == null) 
+            {
+                availableBooks.add(book);
+            }
+        }
+        return availableBooks;
+    }
 
 }
