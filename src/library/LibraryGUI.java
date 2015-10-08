@@ -37,7 +37,13 @@ public class LibraryGUI extends javax.swing.JFrame {
 
         initComponents();
         setupListeners();
-        
+        setupData();
+
+        reloadLibraryTable();
+        reloadMembersTable();
+    }
+
+    private void setupData() {
         Member member1 = new Member("Jane");
         Member member2 = new Member("Amir");
         Member member3 = new Member("Astrid");
@@ -56,80 +62,82 @@ public class LibraryGUI extends javax.swing.JFrame {
         holdings.addBook(book1);
         holdings.addBook(book2);
         holdings.addBook(book3);
-  
-        reloadLibraryTable();
-        reloadMembersTable();
     }
 
-   private void setupListeners()
-   {
-       tbl_members.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+    private void setupListeners()
+    {
+        tbl_members.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
-           public void valueChanged(ListSelectionEvent e) {
-               selectedMember = theMembers.get(tbl_members.getSelectedRow());
-               loadLoanedBooksForMember(selectedMember);
-           }
-       });
-       tbl_borrowedBooks.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-           public void valueChanged(ListSelectionEvent e) {
-               Book book;
-               book = selectedMember.getBooksOnLoan()[tbl_borrowedBooks.getSelectedRow()];
-               selectedBorrowedBook = book;
-           }
-       });
-   }
-
-   private void loadLoanedBooksForMember(Member aMember)
-   {
-       DefaultTableModel model = (DefaultTableModel) tbl_borrowedBooks.getModel();
-       
-       for (int i = 0; i < model.getRowCount(); i++)
-       {
-           model.removeRow(0);
-           tbl_borrowedBooks.getCellEditor().cancelCellEditing();
-       }
-       
-       for (Book book : aMember.getBooksOnLoan())
-       {
-            model.addRow(new Object[]{book.getTitle(), "Column 2", "Column 3"});
-       }
-   }
-   
-   private void reloadMembersTable()
-   {
-       DefaultTableModel membersModel = (DefaultTableModel) tbl_members.getModel();
-       
-       for (int i = 0; i < membersModel.getRowCount(); i++)
-       {
-           membersModel.removeRow(i);
-       }
-       
-        for (Member member : theMembers)
-        {
-            membersModel.addRow(new Object[]{member, "Column 2", "Column 3"});
-        }
-   }
-   
-   private void reloadLibraryTable()
-   {
-       DefaultTableModel libraryModel = (DefaultTableModel) tbl_library.getModel();
-            
-       for (int i = 0; i < libraryModel.getRowCount(); i++)
-       {
-           libraryModel.removeRow(i);
-       }
-       
-        for (Book book : holdings)
-        {
-            if (book.getBorrower() == null)
-            {
-                libraryModel.addRow(new Object[]{book.getTitle(), "Column 2", "Column 3"});
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    selectedMember = theMembers.get(tbl_members.getSelectedRow());
+                    loadLoanedBooksForMember(selectedMember);
+                }
             }
-        }
-   }
-       
-   
+        });
+        tbl_borrowedBooks.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+         public void valueChanged(ListSelectionEvent e) {
+            if (!e.getValueIsAdjusting()) {
+             Book book;
+             book = selectedMember.getBooksOnLoan()[tbl_borrowedBooks.getSelectedRow()];
+             selectedBorrowedBook = book;
+         }
+
+     }
+ });
+    }
+
+    private void loadLoanedBooksForMember(Member aMember)
+    {
+     DefaultTableModel model = (DefaultTableModel) tbl_borrowedBooks.getModel();
+
+     for (int i = 0; i < model.getRowCount(); i++)
+     {
+         model.removeRow(0);
+         tbl_borrowedBooks.getCellEditor().cancelCellEditing();
+     }
+
+     for (Book book : aMember.getBooksOnLoan())
+     {
+        model.addRow(new Object[]{book.getTitle(), "Column 2", "Column 3"});
+    }
+}
+
+private void reloadMembersTable()
+{
+ DefaultTableModel membersModel = (DefaultTableModel) tbl_members.getModel();
+
+ for (int i = 0; i < membersModel.getRowCount(); i++)
+ {
+     membersModel.removeRow(i);
+ }
+
+ for (Member member : theMembers)
+ {
+    membersModel.addRow(new Object[]{member, "Column 2", "Column 3"});
+}
+}
+
+private void reloadLibraryTable()
+{
+ DefaultTableModel libraryModel = (DefaultTableModel) tbl_library.getModel();
+
+ for (int i = 0; i < libraryModel.getRowCount(); i++)
+ {
+     libraryModel.removeRow(i);
+ }
+
+ for (Book book : holdings)
+ {
+    if (book.getBorrower() == null)
+    {
+        libraryModel.addRow(new Object[]{book.getTitle(), "Column 2", "Column 3"});
+    }
+}
+}
+
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -183,7 +191,7 @@ public class LibraryGUI extends javax.swing.JFrame {
             new String [] {
                 "Name", "Number"
             }
-        ));
+            ));
         jScrollPane4.setViewportView(tbl_members);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -199,7 +207,7 @@ public class LibraryGUI extends javax.swing.JFrame {
                     .addComponent(txt_memberName)
                     .addComponent(txt_memberNumber))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+            );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
@@ -214,191 +222,191 @@ public class LibraryGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btn_removeMember)
                 .addContainerGap())
-        );
+);
 
-        btn_returnBook.setText("Return Book");
-        btn_returnBook.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_returnBookActionPerformed(evt);
-            }
-        });
+btn_returnBook.setText("Return Book");
+btn_returnBook.addActionListener(new java.awt.event.ActionListener() {
+    public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btn_returnBookActionPerformed(evt);
+    }
+});
 
-        tbl_borrowedBooks.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+tbl_borrowedBooks.setModel(new javax.swing.table.DefaultTableModel(
+    new Object [][] {
 
-            },
-            new String [] {
-                "Title", "Author", "ISBN", "Acc Number"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false
-            };
+    },
+    new String [] {
+        "Title", "Author", "ISBN", "Acc Number"
+    }
+    ) {
+    boolean[] canEdit = new boolean [] {
+        false, false, false, false
+    };
 
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        tbl_borrowedBooks.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jScrollPane1.setViewportView(tbl_borrowedBooks);
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return canEdit [columnIndex];
+    }
+});
+tbl_borrowedBooks.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+jScrollPane1.setViewportView(tbl_borrowedBooks);
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(btn_returnBook, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn_returnBook)
-                .addGap(10, 10, 10))
-        );
+javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+jPanel3.setLayout(jPanel3Layout);
+jPanel3Layout.setHorizontalGroup(
+    jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+    .addGroup(jPanel3Layout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(btn_returnBook, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addContainerGap())
+    );
+jPanel3Layout.setVerticalGroup(
+    jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(btn_returnBook)
+        .addGap(10, 10, 10))
+    );
 
-        txt_bookAuthor.setText("Author");
+txt_bookAuthor.setText("Author");
 
-        txt_bookTitle.setText("Title");
+txt_bookTitle.setText("Title");
 
-        txt_bookAccNumber.setText("Acc number");
+txt_bookAccNumber.setText("Acc number");
 
-        txt_bookISBN.setText("ISBN");
+txt_bookISBN.setText("ISBN");
 
-        btn_loanBook.setText("Loan Book");
+btn_loanBook.setText("Loan Book");
 
-        btn_removeBookFromLibrary.setText("Remove Book From Library");
+btn_removeBookFromLibrary.setText("Remove Book From Library");
 
-        tbl_library.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+tbl_library.setModel(new javax.swing.table.DefaultTableModel(
+    new Object [][] {
 
-            },
-            new String [] {
-                "Title", "Author", "ISBN", "Acc Number"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false
-            };
+    },
+    new String [] {
+        "Title", "Author", "ISBN", "Acc Number"
+    }
+    ) {
+    boolean[] canEdit = new boolean [] {
+        false, false, false, false
+    };
 
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane5.setViewportView(tbl_library);
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return canEdit [columnIndex];
+    }
+});
+jScrollPane5.setViewportView(tbl_library);
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btn_removeBookFromLibrary, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
-                    .addComponent(btn_loanBook, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(txt_bookAuthor, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(txt_bookTitle, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(txt_bookAccNumber, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(txt_bookISBN)
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(txt_bookAuthor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txt_bookTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txt_bookAccNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txt_bookISBN, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn_loanBook)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn_removeBookFromLibrary)
-                .addContainerGap())
-        );
+javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+jPanel4.setLayout(jPanel4Layout);
+jPanel4Layout.setHorizontalGroup(
+    jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+    .addGroup(jPanel4Layout.createSequentialGroup()
+        .addGap(10, 10, 10)
+        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(btn_removeBookFromLibrary, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+            .addComponent(btn_loanBook, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(txt_bookAuthor, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(txt_bookTitle, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(txt_bookAccNumber, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(txt_bookISBN)
+            .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+        .addContainerGap())
+    );
+jPanel4Layout.setVerticalGroup(
+    jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(txt_bookAuthor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(txt_bookTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(txt_bookAccNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(txt_bookISBN, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(btn_loanBook)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(btn_removeBookFromLibrary)
+        .addContainerGap())
+);
 
-        txt_addBookTitle.setText("Title");
+txt_addBookTitle.setText("Title");
 
-        txt_addBookAuthor.setText("Author");
+txt_addBookAuthor.setText("Author");
 
-        txt_addBookISBN.setText("ISBN");
+txt_addBookISBN.setText("ISBN");
 
-        btn_addToLibrary.setText("Add to Library");
-        btn_addToLibrary.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_addToLibraryActionPerformed(evt);
-            }
-        });
+btn_addToLibrary.setText("Add to Library");
+btn_addToLibrary.addActionListener(new java.awt.event.ActionListener() {
+    public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btn_addToLibraryActionPerformed(evt);
+    }
+});
 
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txt_addBookTitle)
-                    .addComponent(txt_addBookAuthor)
-                    .addComponent(txt_addBookISBN)
-                    .addComponent(btn_addToLibrary, javax.swing.GroupLayout.DEFAULT_SIZE, 279, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(txt_addBookTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txt_addBookAuthor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txt_addBookISBN, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn_addToLibrary)
-                .addContainerGap())
-        );
+javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+jPanel5.setLayout(jPanel5Layout);
+jPanel5Layout.setHorizontalGroup(
+    jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+    .addGroup(jPanel5Layout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(txt_addBookTitle)
+            .addComponent(txt_addBookAuthor)
+            .addComponent(txt_addBookISBN)
+            .addComponent(btn_addToLibrary, javax.swing.GroupLayout.DEFAULT_SIZE, 279, Short.MAX_VALUE))
+        .addContainerGap())
+    );
+jPanel5Layout.setVerticalGroup(
+    jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+    .addGroup(jPanel5Layout.createSequentialGroup()
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addComponent(txt_addBookTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(txt_addBookAuthor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(txt_addBookISBN, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(btn_addToLibrary)
+        .addContainerGap())
+    );
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+getContentPane().setLayout(layout);
+layout.setHorizontalGroup(
+    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+    .addGroup(layout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addContainerGap())
+    );
+layout.setVerticalGroup(
+    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+    .addGroup(layout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        .addContainerGap())
+    );
 
-        pack();
+pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_addToLibraryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_addToLibraryActionPerformed
@@ -406,7 +414,7 @@ public class LibraryGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_addToLibraryActionPerformed
 
     private void btn_returnBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_returnBookActionPerformed
-        
+
         selectedMember.returnBook(selectedBorrowedBook);
         loadLoanedBooksForMember(selectedMember);
 //        reloadLibraryTable();
