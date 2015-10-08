@@ -13,6 +13,7 @@ package library;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Vector;
+import javax.swing.JOptionPane;
 import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -54,45 +55,69 @@ public class LibraryGUI extends javax.swing.JFrame {
         theMembers.addMember(member3);
         theMembers.addMember(member4);
 
-        Book book1 = new Book("book1");
-        Book book2 = new Book("book2");
-        Book book3 = new Book("book3");
+        Book book1 = new Book("book1", "Tolstoj", "isnb8732784");
+        Book book2 = new Book("book2", "rowel dahl", "idn382973");
+        Book book3 = new Book("book3", "Si mccable", "ief3298739");
+        Book book4 = new Book("book4", "dale bundy", "kenf9u2uenf");
+        Book book5 = new Book("book5", "will cox", "2fjnoenr");
+
         member1.borrowBook(book2);
+        member1.borrowBook(book3);
 
         holdings.addBook(book1);
         holdings.addBook(book2);
         holdings.addBook(book3);
+        holdings.addBook(book4);
+        holdings.addBook(book5);
     }
 
     private void setupListeners() {
-        tbl_members.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
+        tbl_members.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int row = tbl_members.rowAtPoint(evt.getPoint());
+                if (row >= 0) {
                     selectedMember = theMembers.get(tbl_members.getSelectedRow());
                     loadLoanedBooksForMember(selectedMember);
                 }
             }
         });
-        tbl_borrowedBooks.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting() && selectedMember.getBooksOnLoan().length > 0) {
+        tbl_borrowedBooks.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int row = tbl_borrowedBooks.rowAtPoint(evt.getPoint());
+                if (row >= 0) {
                     Book book;
-                    book = selectedMember.getBooksOnLoan()[tbl_borrowedBooks.getSelectedRow()];
+                    book = selectedMember.getBooksOnLoan()[row];
                     selectedBorrowedBook = book;
+                }
+            }
+        });
+
+        tbl_library.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int row = tbl_library.rowAtPoint(evt.getPoint());
+                if (row >= 0) {
+                    selectedLibraryBook = holdings.availableBooks().get(row);
                 }
             }
         });
     }
 
+    private boolean approveLoan() {
+        return selectedMember.getBooksOnLoan().length < 3;
+    }
+
     private void loadLoanedBooksForMember(Member aMember) {
         DefaultTableModel model = (DefaultTableModel) tbl_borrowedBooks.getModel();
 
-        model.setRowCount(0); 
-        
+        model.setRowCount(0);
+        selectedBorrowedBook = null;
+
         for (Book book : aMember.getBooksOnLoan()) {
-            model.addRow(new Object[]{book.getTitle(), "Column 2", "Column 3"});
+            model.addRow(new Object[]{book.getTitle(), book.getAuthor(), book.getISBNNumber(), book.getAccessionNumber()});
         }
     }
 
@@ -100,9 +125,10 @@ public class LibraryGUI extends javax.swing.JFrame {
         DefaultTableModel membersModel = (DefaultTableModel) tbl_members.getModel();
 
         membersModel.setRowCount(0);
+        selectedMember = null;
 
         for (Member member : theMembers) {
-            membersModel.addRow(new Object[]{member, "Column 2", "Column 3"});
+            membersModel.addRow(new Object[]{member.getMemberNumber(), member.getName()});
         }
     }
 
@@ -110,11 +136,10 @@ public class LibraryGUI extends javax.swing.JFrame {
         DefaultTableModel libraryModel = (DefaultTableModel) tbl_library.getModel();
 
         libraryModel.setRowCount(0);
+        selectedLibraryBook = null;
 
-        for (Book book : holdings) {
-            if (book.getBorrower() == null) {
-                libraryModel.addRow(new Object[]{book.getTitle(), "Column 2", "Column 3"});
-            }
+        for (Book book : holdings.availableBooks()) {
+            libraryModel.addRow(new Object[]{book.getTitle(), book.getAuthor(), book.getISBNNumber(), book.getAccessionNumber()});
         }
     }
 
@@ -169,7 +194,7 @@ public class LibraryGUI extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Name", "Number"
+                "Member Number", "Name"
             }
         ));
         tbl_members.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
@@ -261,6 +286,11 @@ public class LibraryGUI extends javax.swing.JFrame {
         txt_bookISBN.setText("ISBN");
 
         btn_loanBook.setText("Loan Book");
+        btn_loanBook.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_loanBookActionPerformed(evt);
+            }
+        });
 
         btn_removeBookFromLibrary.setText("Remove Book From Library");
 
@@ -396,10 +426,27 @@ public class LibraryGUI extends javax.swing.JFrame {
 
     private void btn_returnBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_returnBookActionPerformed
 
-        selectedMember.returnBook(selectedBorrowedBook);
-        loadLoanedBooksForMember(selectedMember);
-        reloadLibraryTable();
+        if (selectedBorrowedBook == null) {
+            JOptionPane.showMessageDialog(null, "No book selected", "Warning", JOptionPane.PLAIN_MESSAGE);
+        } else{
+            selectedMember.returnBook(selectedBorrowedBook);
+            loadLoanedBooksForMember(selectedMember);
+            reloadLibraryTable();
+        }
     }//GEN-LAST:event_btn_returnBookActionPerformed
+
+    private void btn_loanBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_loanBookActionPerformed
+
+        if (selectedLibraryBook == null || selectedMember == null) {
+            JOptionPane.showMessageDialog(null, "Please select a member and a book", "Warning", JOptionPane.PLAIN_MESSAGE);
+        } else if (!approveLoan()) {
+            JOptionPane.showMessageDialog(null, "Maximum number of books already on loan", "Warning", JOptionPane.PLAIN_MESSAGE);
+        } else {
+            selectedMember.borrowBook(selectedLibraryBook);
+            loadLoanedBooksForMember(selectedMember);
+            reloadLibraryTable();
+        }
+    }//GEN-LAST:event_btn_loanBookActionPerformed
 
     /**
      * @param args the command line arguments
