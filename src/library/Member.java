@@ -51,5 +51,15 @@ public class Member {
             return new Book[0];
         }
     }
+    
+    public String getName()
+    {
+        return name;
+    }
+    
+    public int getMemberNumber()
+    {
+        return memberNumber; 
+    }
 }
 
