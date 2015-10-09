@@ -10,11 +10,14 @@
  */
 package library;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.ListModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -30,6 +33,13 @@ public class LibraryGUI extends javax.swing.JFrame {
     private Member selectedMember;
     private Book selectedBorrowedBook;
     private Book selectedLibraryBook;
+
+    private boolean membersAreBeingFiltered = false;
+    private SetOfMembers filteredMembers = new SetOfMembers();
+
+    private SetOfMembers getMembers() {
+        return membersAreBeingFiltered ? filteredMembers : theMembers;
+    }
 
     /**
      * Creates new form LibraryGUI
@@ -77,7 +87,7 @@ public class LibraryGUI extends javax.swing.JFrame {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 int row = tbl_members.rowAtPoint(evt.getPoint());
                 if (row >= 0) {
-                    selectedMember = theMembers.get(tbl_members.getSelectedRow());
+                    selectedMember = getMembers().get(tbl_members.getSelectedRow());
                     loadLoanedBooksForMember(selectedMember);
                 }
             }
@@ -104,6 +114,42 @@ public class LibraryGUI extends javax.swing.JFrame {
                 }
             }
         });
+        
+        DocumentListener membersDocumentListener = new DocumentListener() {
+
+            public void changedUpdate(DocumentEvent e) {
+            }
+
+            public void insertUpdate(DocumentEvent e) {
+                filterMembers();
+                reloadMembersTable();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                if (txt_memberName.getText().length() == 0 && txt_memberNumber.getText().length() == 0) {
+                    membersAreBeingFiltered = false;
+                } else {
+                    filteredMembers = theMembers;
+                    filterMembers();
+                }
+                reloadMembersTable();
+            }
+
+        };
+
+        txt_memberName.getDocument().addDocumentListener(membersDocumentListener);
+        txt_memberNumber.getDocument().addDocumentListener(membersDocumentListener);
+    }
+    
+    private void filterMembers()
+    {
+        if (txt_memberName.getText().length() > 0){
+            filteredMembers = getMembers().getMemberFromName(txt_memberName.getText());
+        }
+        if (txt_memberNumber.getText().length() > 0){
+            filteredMembers = getMembers().getMemberFromNumber(txt_memberNumber.getText());
+        }
+        membersAreBeingFiltered = true;
     }
 
     private boolean approveLoan() {
@@ -129,7 +175,7 @@ public class LibraryGUI extends javax.swing.JFrame {
         membersModel.setRowCount(0);
         selectedMember = null;
 
-        for (Member member : theMembers) {
+        for (Member member : getMembers()) {
             membersModel.addRow(new Object[]{member.getMemberNumber(), member.getName()});
         }
     }
@@ -512,13 +558,11 @@ public class LibraryGUI extends javax.swing.JFrame {
             txt_addBookTitle.setText("");
             txt_addBookAuthor.setText("");
             txt_addBookISBN.setText("");
-            
+
             holdings.addBook(new Book(title, author, iSBN));
-            
+
             reloadLibraryTable();
-        }
-        else
-        {
+        } else {
             JOptionPane.showMessageDialog(null, "Missing information for book", "Warning", JOptionPane.PLAIN_MESSAGE);
         }
     }//GEN-LAST:event_btn_addToLibraryActionPerformed
@@ -571,15 +615,14 @@ public class LibraryGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_removeMemberActionPerformed
 
     private void btn_removeBookFromLibraryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_removeBookFromLibraryActionPerformed
-        
+
         if (selectedLibraryBook == null) {
             JOptionPane.showMessageDialog(null, "No book selected", "Warning", JOptionPane.PLAIN_MESSAGE);
-        }
-        else {
+        } else {
             holdings.removeBook(selectedLibraryBook);
             reloadLibraryTable();
         }
-            
+
     }//GEN-LAST:event_btn_removeBookFromLibraryActionPerformed
 
     /**
