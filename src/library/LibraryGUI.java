@@ -45,7 +45,7 @@ public class LibraryGUI extends javax.swing.JFrame {
      * Creates new form LibraryGUI
      */
     public LibraryGUI() {
-
+        System.out.println("Starting");
         initComponents();
         setupListeners();
         setupData();
