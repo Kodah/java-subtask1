@@ -4,22 +4,24 @@
  */
 package library;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Kutoma
  */
-public class Book {
+public class Book implements Serializable{
 
     private String title;
     private Member borrower = null;
-    private static int bookCount = 0;
+    private static int accessionCounter = 0;
     private int accessionNumber;
     private String iSBNNumber;
     private String author;
 
     public Book(String name) {
         title = name;
-        accessionNumber = bookCount++;
+        accessionNumber = accessionCounter++;
 
     }
 
@@ -27,7 +29,7 @@ public class Book {
         title = name;
         this.author = author;
         this.iSBNNumber = iSBNNumber;
-        accessionNumber = bookCount++;
+        accessionNumber = accessionCounter++;
     }
 
     void setBorrower(Member theBorrower) {
@@ -57,5 +59,8 @@ public class Book {
         return accessionNumber;
     }
     
-
+    public static void setAccessionCounter(int count)
+    {
+        accessionCounter = count;
+    }
 }

@@ -10,8 +10,11 @@
  */
 package library;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -48,15 +51,70 @@ public class LibraryGUI extends javax.swing.JFrame {
      * Creates new form LibraryGUI
      */
     public LibraryGUI() {
-        System.out.println("Starting");
         initComponents();
         setupListeners();
-        setupData();
-
+//        setupData();
+        readData();
+//        readLibraryData();
+//        readMemberData();
         reloadLibraryTable();
         reloadMembersTable();
     }
+    
+    private void readData() 
+    {
+        try 
+        {
+            FileInputStream fin = new FileInputStream("library.data");
+            ObjectInputStream ois = new ObjectInputStream(fin);
 
+            ArrayList<Object> data = (ArrayList<Object>) ois.readObject();
+            
+            theMembers = (SetOfMembers) data.get(0);
+            holdings = (SetOfBooks) data.get(1);
+            
+            Book.setAccessionCounter(holdings.maxAccessionNumber() + 1);
+            Member.setMemberNumberCounter(theMembers.maxMemberNumber() + 1);
+            
+            ois.close();
+            System.out.println("Read Successful");
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+//    private void readLibraryData() 
+//    {
+//        try 
+//        {
+//            FileInputStream fin = new FileInputStream("libraryBooks.science");
+//            ObjectInputStream ois = new ObjectInputStream(fin);
+//            holdings = (SetOfBooks) ois.readObject();
+//            
+//            Book.setBookCount(holdings.maxAccessionNumber() + 1);
+//            ois.close();
+//
+//        } catch (Exception ex) {
+//            System.out.println(ex.getMessage());
+//        }
+//    }
+//    
+//    private void readMemberData()
+//    {
+//        try 
+//        {
+//            FileInputStream fin = new FileInputStream("members.science");
+//            ObjectInputStream ois = new ObjectInputStream(fin);
+//            theMembers = (SetOfMembers) ois.readObject();
+//            
+//            ois.close();
+//
+//        } catch (Exception ex) {
+//            System.out.println(ex.getMessage());
+//        }
+//    }
+        
+    
     private void setupData() {
         Member member1 = new Member("Jane");
         Member member2 = new Member("Amir");
@@ -113,7 +171,7 @@ public class LibraryGUI extends javax.swing.JFrame {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 int row = tbl_library.rowAtPoint(evt.getPoint());
                 if (row >= 0) {
-                    selectedLibraryBook = holdings.availableBooks().get(row);
+                    selectedLibraryBook = getBooks().availableBooks().get(row);
                 }
             }
         });
@@ -237,26 +295,31 @@ public class LibraryGUI extends javax.swing.JFrame {
         }
     }
 
-    private void saveLibraryBooks() {
-        try {
-            FileOutputStream fout = new FileOutputStream("libraryBooks.science");
-            ObjectOutputStream oos = new ObjectOutputStream(fout);
-            oos.writeObject(holdings);
-            oos.close();
-            System.out.println("Saved books");
-
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }
-    }
+//    private void saveLibraryBooks() {
+//        try {
+//            FileOutputStream fout = new FileOutputStream("libraryBooks.science");
+//            ObjectOutputStream oos = new ObjectOutputStream(fout);
+//            oos.writeObject(holdings);
+//            oos.close();
+//            System.out.println("Saved books");
+//
+//        } catch (Exception ex) {
+//            System.out.println(ex.getMessage());
+//        }
+//    }
 
     private void saveMembers() {
         try {
-            FileOutputStream fout = new FileOutputStream("members.science");
+            ArrayList<Object> data = new ArrayList<Object>();
+            
+            data.add(theMembers);
+            data.add(holdings);
+            
+            FileOutputStream fout = new FileOutputStream("library.data");
             ObjectOutputStream oos = new ObjectOutputStream(fout);
-            oos.writeObject(theMembers);
+            oos.writeObject(data);
             oos.close();
-            System.out.println("Saved members");
+            System.out.println("Saved data");
 
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -709,13 +772,14 @@ public class LibraryGUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "No book selected", "Warning", JOptionPane.PLAIN_MESSAGE);
         } else {
             holdings.removeBook(selectedLibraryBook);
+            filteredBooks.removeBook(selectedLibraryBook);
             reloadLibraryTable();
         }
 
     }//GEN-LAST:event_btn_removeBookFromLibraryActionPerformed
 
     private void btn_saveAndExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_saveAndExitActionPerformed
-        saveLibraryBooks();
+//        saveLibraryBooks();
         saveMembers();
         System.exit(0);
     }//GEN-LAST:event_btn_saveAndExitActionPerformed

@@ -42,7 +42,7 @@ public class SetOfBooks extends ArrayList<Book> {
     {
         SetOfBooks filteredBooks = new SetOfBooks();
         for (Book book : this) {
-            if (book.getAuthor().contains(author)) {
+            if (book.getAuthor().toLowerCase().contains(author.toLowerCase())) {
                 filteredBooks.add(book);
             }
         }
@@ -53,7 +53,7 @@ public class SetOfBooks extends ArrayList<Book> {
     {
         SetOfBooks filteredBooks = new SetOfBooks();
         for (Book book : this) {
-            if (book.getTitle().contains(title)) {
+            if (book.getTitle().toLowerCase().contains(title.toLowerCase())) {
                 filteredBooks.add(book);
             }
         }
@@ -75,11 +75,24 @@ public class SetOfBooks extends ArrayList<Book> {
     {
         SetOfBooks filteredBooks = new SetOfBooks();
         for (Book book : this) {
-            if (book.getISBNNumber().contains(ISBN)) {
+            if (book.getISBNNumber().toLowerCase().contains(ISBN.toLowerCase())) {
                 filteredBooks.add(book);
             }
         }
         return filteredBooks;
     }
 
+    public int maxAccessionNumber()
+    {
+        int maxNum = 0;        
+        for (Book book : this) 
+        {
+            int bookNum = book.getAccessionNumber();
+            if (bookNum >= maxNum) 
+            {
+                maxNum = bookNum;
+            }
+        }
+        return maxNum;
+    }
 }
