@@ -10,6 +10,8 @@
  */
 package library;
 
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import javax.swing.JOptionPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -23,21 +25,21 @@ public class LibraryGUI extends javax.swing.JFrame {
 
     private SetOfMembers theMembers = new SetOfMembers();
     private SetOfBooks holdings = new SetOfBooks();
-    
+
     private Member selectedMember;
     private Book selectedBorrowedBook;
     private Book selectedLibraryBook;
 
     private boolean membersAreBeingFiltered = false;
     private SetOfMembers filteredMembers = new SetOfMembers();
-    
+
     private boolean libraryisBeingFiltered = false;
     private SetOfBooks filteredBooks = new SetOfBooks();
 
     private SetOfMembers getMembers() {
         return membersAreBeingFiltered ? filteredMembers : theMembers;
     }
-    
+
     private SetOfBooks getBooks() {
         return libraryisBeingFiltered ? filteredBooks : holdings;
     }
@@ -115,7 +117,7 @@ public class LibraryGUI extends javax.swing.JFrame {
                 }
             }
         });
-        
+
         DocumentListener membersDocumentListener = new DocumentListener() {
 
             public void changedUpdate(DocumentEvent e) {
@@ -126,15 +128,11 @@ public class LibraryGUI extends javax.swing.JFrame {
                 reloadMembersTable();
             }
 
-            public void removeUpdate(DocumentEvent e) 
-            {
-                if (txt_memberName.getText().length() == 0 
-                        && txt_memberNumber.getText().length() == 0) 
-                {
+            public void removeUpdate(DocumentEvent e) {
+                if (txt_memberName.getText().length() == 0
+                        && txt_memberNumber.getText().length() == 0) {
                     membersAreBeingFiltered = false;
-                } 
-                else 
-                {
+                } else {
                     filteredMembers = theMembers;
                     filterMembers();
                 }
@@ -145,27 +143,23 @@ public class LibraryGUI extends javax.swing.JFrame {
 
         txt_memberName.getDocument().addDocumentListener(membersDocumentListener);
         txt_memberNumber.getDocument().addDocumentListener(membersDocumentListener);
-        
-        DocumentListener libraryDocumentListener = new DocumentListener() {
-            public void changedUpdate(DocumentEvent e) {}
 
-            public void insertUpdate(DocumentEvent e) 
-            {
+        DocumentListener libraryDocumentListener = new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+            }
+
+            public void insertUpdate(DocumentEvent e) {
                 filterLibrary();
                 reloadLibraryTable();
             }
 
-            public void removeUpdate(DocumentEvent e) 
-            {
-                if (txt_bookAuthor.getText().length() == 0 
+            public void removeUpdate(DocumentEvent e) {
+                if (txt_bookAuthor.getText().length() == 0
                         && txt_bookTitle.getText().length() == 0
                         && txt_bookAccNumber.getText().length() == 0
-                        && txt_bookISBN.getText().length() == 0)
-                {
+                        && txt_bookISBN.getText().length() == 0) {
                     libraryisBeingFiltered = false;
-                } 
-                else 
-                {
+                } else {
                     filteredBooks = holdings;
                     filterLibrary();
                 }
@@ -177,20 +171,18 @@ public class LibraryGUI extends javax.swing.JFrame {
         txt_bookISBN.getDocument().addDocumentListener(libraryDocumentListener);
         txt_bookTitle.getDocument().addDocumentListener(libraryDocumentListener);
     }
-    
-    private void filterMembers()
-    {
-        if (txt_memberName.getText().length() > 0){
+
+    private void filterMembers() {
+        if (txt_memberName.getText().length() > 0) {
             filteredMembers = getMembers().getMemberFromName(txt_memberName.getText());
         }
-        if (txt_memberNumber.getText().length() > 0){
+        if (txt_memberNumber.getText().length() > 0) {
             filteredMembers = getMembers().getMemberFromNumber(txt_memberNumber.getText());
         }
         membersAreBeingFiltered = true;
     }
-    
-    private void filterLibrary()
-    {
+
+    private void filterLibrary() {
         if (txt_bookAuthor.getText().length() > 0) {
             filteredBooks = getBooks().findBookByAuthor(txt_bookAuthor.getText());
         }
@@ -239,9 +231,35 @@ public class LibraryGUI extends javax.swing.JFrame {
 
         libraryModel.setRowCount(0);
         selectedLibraryBook = null;
-        
+
         for (Book book : getBooks().availableBooks()) {
             libraryModel.addRow(new Object[]{book.getTitle(), book.getAuthor(), book.getISBNNumber(), book.getAccessionNumber()});
+        }
+    }
+
+    private void saveLibraryBooks() {
+        try {
+            FileOutputStream fout = new FileOutputStream("libraryBooks.science");
+            ObjectOutputStream oos = new ObjectOutputStream(fout);
+            oos.writeObject(holdings);
+            oos.close();
+            System.out.println("Saved books");
+
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    private void saveMembers() {
+        try {
+            FileOutputStream fout = new FileOutputStream("members.science");
+            ObjectOutputStream oos = new ObjectOutputStream(fout);
+            oos.writeObject(theMembers);
+            oos.close();
+            System.out.println("Saved members");
+
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -282,6 +300,7 @@ public class LibraryGUI extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
+        btn_saveAndExit = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         txt_addBookTitle = new javax.swing.JTextField();
         txt_addBookAuthor = new javax.swing.JTextField();
@@ -462,32 +481,46 @@ public class LibraryGUI extends javax.swing.JFrame {
 
         jLabel9.setText("ISBN:");
 
+        btn_saveAndExit.setText("Save and Exit");
+        btn_saveAndExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_saveAndExitActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(10, 10, 10)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btn_removeBookFromLibrary, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
-                    .addComponent(btn_loanBook, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel8)
-                            .addComponent(jLabel9))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txt_bookAccNumber)
-                            .addComponent(txt_bookISBN)))
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
-                            .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(4, 4, 4)
+                        .addGap(10, 10, 10)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txt_bookTitle)
-                            .addComponent(txt_bookAuthor))))
+                            .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel8)
+                                    .addComponent(jLabel9))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txt_bookAccNumber)
+                                    .addComponent(txt_bookISBN)))
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
+                                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(4, 4, 4)
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txt_bookTitle)
+                                    .addComponent(txt_bookAuthor)))))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btn_removeBookFromLibrary, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
+                            .addComponent(btn_loanBook, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btn_saveAndExit)))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -512,9 +545,12 @@ public class LibraryGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn_loanBook)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn_removeBookFromLibrary)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(btn_loanBook)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btn_removeBookFromLibrary))
+                    .addComponent(btn_saveAndExit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -596,8 +632,7 @@ public class LibraryGUI extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
         );
 
         pack();
@@ -679,6 +714,12 @@ public class LibraryGUI extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btn_removeBookFromLibraryActionPerformed
 
+    private void btn_saveAndExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_saveAndExitActionPerformed
+        saveLibraryBooks();
+        saveMembers();
+        System.exit(0);
+    }//GEN-LAST:event_btn_saveAndExitActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -698,6 +739,7 @@ public class LibraryGUI extends javax.swing.JFrame {
     private javax.swing.JButton btn_removeBookFromLibrary;
     private javax.swing.JButton btn_removeMember;
     private javax.swing.JButton btn_returnBook;
+    private javax.swing.JButton btn_saveAndExit;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
