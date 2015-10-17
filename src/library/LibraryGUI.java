@@ -10,16 +10,9 @@
  */
 package library;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Vector;
 import javax.swing.JOptionPane;
-import javax.swing.ListModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -30,15 +23,23 @@ public class LibraryGUI extends javax.swing.JFrame {
 
     private SetOfMembers theMembers = new SetOfMembers();
     private SetOfBooks holdings = new SetOfBooks();
+    
     private Member selectedMember;
     private Book selectedBorrowedBook;
     private Book selectedLibraryBook;
 
     private boolean membersAreBeingFiltered = false;
     private SetOfMembers filteredMembers = new SetOfMembers();
+    
+    private boolean libraryisBeingFiltered = false;
+    private SetOfBooks filteredBooks = new SetOfBooks();
 
     private SetOfMembers getMembers() {
         return membersAreBeingFiltered ? filteredMembers : theMembers;
+    }
+    
+    private SetOfBooks getBooks() {
+        return libraryisBeingFiltered ? filteredBooks : holdings;
     }
 
     /**
@@ -125,10 +126,15 @@ public class LibraryGUI extends javax.swing.JFrame {
                 reloadMembersTable();
             }
 
-            public void removeUpdate(DocumentEvent e) {
-                if (txt_memberName.getText().length() == 0 && txt_memberNumber.getText().length() == 0) {
+            public void removeUpdate(DocumentEvent e) 
+            {
+                if (txt_memberName.getText().length() == 0 
+                        && txt_memberNumber.getText().length() == 0) 
+                {
                     membersAreBeingFiltered = false;
-                } else {
+                } 
+                else 
+                {
                     filteredMembers = theMembers;
                     filterMembers();
                 }
@@ -139,6 +145,37 @@ public class LibraryGUI extends javax.swing.JFrame {
 
         txt_memberName.getDocument().addDocumentListener(membersDocumentListener);
         txt_memberNumber.getDocument().addDocumentListener(membersDocumentListener);
+        
+        DocumentListener libraryDocumentListener = new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {}
+
+            public void insertUpdate(DocumentEvent e) 
+            {
+                filterLibrary();
+                reloadLibraryTable();
+            }
+
+            public void removeUpdate(DocumentEvent e) 
+            {
+                if (txt_bookAuthor.getText().length() == 0 
+                        && txt_bookTitle.getText().length() == 0
+                        && txt_bookAccNumber.getText().length() == 0
+                        && txt_bookISBN.getText().length() == 0)
+                {
+                    libraryisBeingFiltered = false;
+                } 
+                else 
+                {
+                    filteredBooks = holdings;
+                    filterLibrary();
+                }
+                reloadLibraryTable();
+            }
+        };
+        txt_bookAccNumber.getDocument().addDocumentListener(libraryDocumentListener);
+        txt_bookAuthor.getDocument().addDocumentListener(libraryDocumentListener);
+        txt_bookISBN.getDocument().addDocumentListener(libraryDocumentListener);
+        txt_bookTitle.getDocument().addDocumentListener(libraryDocumentListener);
     }
     
     private void filterMembers()
@@ -150,6 +187,23 @@ public class LibraryGUI extends javax.swing.JFrame {
             filteredMembers = getMembers().getMemberFromNumber(txt_memberNumber.getText());
         }
         membersAreBeingFiltered = true;
+    }
+    
+    private void filterLibrary()
+    {
+        if (txt_bookAuthor.getText().length() > 0) {
+            filteredBooks = getBooks().findBookByAuthor(txt_bookAuthor.getText());
+        }
+        if (txt_bookTitle.getText().length() > 0) {
+            filteredBooks = getBooks().findBookByTitle(txt_bookTitle.getText());
+        }
+        if (txt_bookAccNumber.getText().length() > 0) {
+            filteredBooks = getBooks().findBookByAccNum(txt_bookAccNumber.getText());
+        }
+        if (txt_bookISBN.getText().length() > 0) {
+            filteredBooks = getBooks().findBookByISBN(txt_bookISBN.getText());
+        }
+        libraryisBeingFiltered = true;
     }
 
     private boolean approveLoan() {
@@ -185,8 +239,8 @@ public class LibraryGUI extends javax.swing.JFrame {
 
         libraryModel.setRowCount(0);
         selectedLibraryBook = null;
-
-        for (Book book : holdings.availableBooks()) {
+        
+        for (Book book : getBooks().availableBooks()) {
             libraryModel.addRow(new Object[]{book.getTitle(), book.getAuthor(), book.getISBNNumber(), book.getAccessionNumber()});
         }
     }
