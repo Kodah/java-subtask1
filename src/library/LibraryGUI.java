@@ -73,8 +73,8 @@ public class LibraryGUI extends javax.swing.JFrame {
             theMembers = (SetOfMembers) data.get(0);
             holdings = (SetOfBooks) data.get(1);
             
-            Book.setAccessionCounter(holdings.maxAccessionNumber() + 1);
-            Member.setMemberNumberCounter(theMembers.maxMemberNumber() + 1);
+            Book.setAccessionCounter(holdings.maxAccessionNumber());
+            Member.setMemberNumberCounter(theMembers.maxMemberNumber());
             
             ois.close();
             System.out.println("Read Successful");

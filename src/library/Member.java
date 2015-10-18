@@ -58,6 +58,6 @@ public class Member implements Serializable {
     }
 
     public static void setMemberNumberCounter(int count) {
-        memberNumberCounter = count;
+        memberNumberCounter = count + 1;
     }
 }

@@ -61,6 +61,6 @@ public class Book implements Serializable{
     
     public static void setAccessionCounter(int count)
     {
-        accessionCounter = count;
+        accessionCounter = count + 1;
     }
 }
